@@ -115,7 +115,10 @@ function shortDate(g) {
 }
 const gameTime = g => Date.parse(g.date.replace(" ", "T"));
 const isUpcoming = g => gameTime(g) + 6 * 3600e3 > Date.now();
-const sportName = t => t ? t[0].toUpperCase() + t.slice(1).replace(/_/g, " ") : "Other";
+// "womens_basketball" -> "Women's Basketball"
+const sportName = t => !t ? "Other" : t.split("_")
+  .map(w => ({ womens: "women's", mens: "men's" })[w] ?? w)
+  .map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
 function gameDate(g) {
   const d = new Date(g.date.replace(" ", "T"));
   return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }) +
@@ -297,7 +300,8 @@ function render(idx) {
       `<div class="sub" id="ladderNote">+${over} listings above $${Math.round(cap)} not shown</div>`);
   }
 
-  input.value = presets.length ? presets[0][1].toFixed(2) : "";
+  // Round down like the preset buttons, so the default matches "Undercut cheapest".
+  input.value = presets.length ? (Math.floor(presets[0][1] * 100) / 100).toFixed(2) : "";
   update();
 }
 
