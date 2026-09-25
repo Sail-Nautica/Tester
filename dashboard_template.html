@@ -77,6 +77,17 @@ table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-nu
 th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--grid); }
 th:first-child, td:first-child { text-align: left; }
 th { color: var(--text-2); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+.lookup-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.lookup-row input { flex: 1 1 260px; font: inherit; font-size: 15px; padding: 7px 10px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.timeline { list-style: none; margin: 8px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--border); }
+.timeline li { position: relative; margin: 0 0 8px; font-size: 14px; }
+.timeline li::before { content: ""; position: absolute; left: -20px; top: 6px; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--surface); border: 2px solid var(--text-2); }
+.timeline time { color: var(--muted); font-size: 12.5px; margin-right: 6px; }
+.hit { font-size: 14px; }
+#listingRows tr { cursor: pointer; }
+#listingRows tr:hover td { background: var(--bg); }
 .cut { color: var(--good); } .raise { color: var(--warn); }
 .filter { font: inherit; font-size: 13px; margin-left: 8px; padding: 3px 6px; border-radius: 6px;
   border: 1px solid var(--border); background: var(--bg); color: var(--text); }
@@ -117,6 +128,17 @@ function gameLabel(g) { return `${g.away_team}`; }
 function fmtAge(ts) {
   const m = (Date.now() - Date.parse(ts)) / 60e3;
   return m < 60 ? Math.max(1, Math.round(m)) + "m" : m < 48 * 60 ? Math.round(m / 60) + "h" : Math.round(m / 1440) + "d";
+}
+function fmtDur(ms) {
+  const m = ms / 60e3;
+  return m < 90 ? Math.max(1, Math.round(m)) + " min" : m < 48 * 60 ? (m / 60).toFixed(1) + " hr" : (m / 1440).toFixed(1) + " days";
+}
+const median = xs => { if (!xs.length) return null; const a = [...xs].sort((x, y) => x - y), h = a.length >> 1;
+  return a.length % 2 ? a[h] : (a[h - 1] + a[h]) / 2; };
+// Time on market for a listing history record (ms), and whether it's a lower bound.
+function onMarket(h) {
+  const end = h.end ? Date.parse(h.end) : Date.parse(DATA.generated);
+  return { ms: end - Date.parse(h.start), atLeast: !h.start_exact };
 }
 function shortDate(g) {
   return new Date(g.date.replace(" ", "T")).toLocaleDateString([], { month: "numeric", day: "numeric" });
@@ -162,6 +184,24 @@ function render(idx) {
   g.sales = g.sales || [];
   const since3h = Date.now() - 3 * 3600e3;
   const recentSales = g.sales.filter(x => Date.parse(x.ts) >= since3h);
+  const hist = g.history || [];
+  const histById = Object.fromEntries(hist.map(h => [h.id, h]));
+  const tom = (() => {
+    const sold = hist.filter(h => h.outcome === "sold");
+    const exact = sold.filter(h => h.start_exact).map(h => onMarket(h).ms);
+    const pool = exact.length >= 3 ? exact : sold.map(h => onMarket(h).ms);
+    const wd = hist.filter(h => h.outcome === "withdrawn");
+    const active = hist.filter(h => !h.end);
+    const oldest = active.reduce((a, h) => !a || Date.parse(h.start) < Date.parse(a.start) ? h : a, null);
+    return {
+      sell: pool.length ? (exact.length >= 3 ? "" : "≥ ") + fmtDur(median(pool)) : "—",
+      sellNote: pool.length ? `from ${pool.length} likely sale${pool.length > 1 ? "s" : ""}` +
+        (exact.length >= 3 ? "" : ", mostly listed before tracking") : "no sales detected yet",
+      withdrawn: wd.length ? (wd.every(h => h.start_exact) ? "" : "≥ ") + fmtDur(median(wd.map(h => onMarket(h).ms))) : "—",
+      oldest: oldest ? (oldest.start_exact ? "" : "≥ ") + fmtDur(onMarket(oldest).ms) : "—",
+      oldestNote: oldest ? `${$(oldest.prices[oldest.prices.length - 1][1])} · Sect. ${oldest.section}, Row ${oldest.row}` : "",
+    };
+  })();
   const v = velocity(snaps);
 
   main.innerHTML = `
@@ -204,6 +244,22 @@ function render(idx) {
       ${g.tracking_since ? `<div class="sub">Tracking individual listings since ${fmtTime(Date.parse(g.tracking_since))}</div>` : ""}
     </div>
 
+    <div class="card calc" id="tomCard">
+      <h2>Time on market</h2>
+      <p class="desc">How long listings stay up before they sell or get taken down.
+        "≥" means the listing was already up when tracking began, so the real time is longer.</p>
+      <div class="result">
+        <div class="tile"><div class="label">Median time to sell</div><div class="value">${tom.sell}</div><div class="note">${tom.sellNote}</div></div>
+        <div class="tile"><div class="label">Taken down after</div><div class="value">${tom.withdrawn}</div><div class="note">median, unsold listings</div></div>
+        <div class="tile"><div class="label">Oldest active listing</div><div class="value">${tom.oldest}</div><div class="note">${tom.oldestNote}</div></div>
+      </div>
+      <h2 style="margin-top:16px">Look up a ticket</h2>
+      <div class="lookup-row">
+        <input id="lookup" placeholder="Ticket link, listing ID, or section row seat (e.g. 33 B 22)" autocomplete="off">
+      </div>
+      <div id="lookupResult" class="hit"></div>
+    </div>
+
     <div class="grid two">
       <div class="card"><h2>Price over time</h2>
         <p class="desc">Cheapest listing, MaizeTix's median sale, and individual likely sales. Prices buyers see.</p>
@@ -240,9 +296,10 @@ function render(idx) {
 
     <div class="card" style="margin-top:12px">
       <details><summary>Likely sales (${g.sales.length})</summary>
-        <div class="tablewrap"><table><thead><tr><th>Time</th><th>Price</th><th>You'd get</th><th>Section</th><th>Row</th></tr></thead>
-        <tbody>${g.sales.slice().reverse().map(s => `<tr><td>${fmtTime(Date.parse(s.ts))}</td><td>${$(s.price)}</td><td>${$(toPayout(s.price))}</td><td>${s.section}</td><td>${s.row}</td></tr>`).join("")
-          || `<tr><td colspan="5" style="text-align:center;color:var(--muted)">None detected yet</td></tr>`}</tbody></table></div>
+        <div class="tablewrap"><table><thead><tr><th>Time</th><th>Price</th><th>You'd get</th><th>Section</th><th>Row</th><th>Listed for</th></tr></thead>
+        <tbody>${g.sales.slice().reverse().map(s => `<tr><td>${fmtTime(Date.parse(s.ts))}</td><td>${$(s.price)}</td><td>${$(toPayout(s.price))}</td><td>${s.section}</td><td>${s.row}</td><td>${
+            histById[s.listing_id] ? (histById[s.listing_id].start_exact ? "" : "≥ ") + fmtDur(onMarket(histById[s.listing_id]).ms) : "—"}</td></tr>`).join("")
+          || `<tr><td colspan="6" style="text-align:center;color:var(--muted)">None detected yet</td></tr>`}</tbody></table></div>
       </details>
     </div>`;
 
@@ -253,11 +310,68 @@ function render(idx) {
         ? (l.changes ? `${l.changes} changes` : "—")
         : `<span class="${l.price < l.first_price ? "cut" : "raise"}">${$(l.first_price)} → ${$(l.price)}</span>`;
       const age = l.first_seen ? (l.since_start ? "≥ " : "") + fmtAge(l.first_seen) : "—";
-      return `<tr><td>${$(l.price)}</td><td>${l.section ?? "—"}</td><td>${l.row ?? "—"}</td><td>${l.seat ?? "—"}</td><td>${age}</td><td>${hist}</td></tr>`;
+      return `<tr data-id="${l.id}" title="Show this listing's timeline"><td>${$(l.price)}</td><td>${l.section ?? "—"}</td><td>${l.row ?? "—"}</td><td>${l.seat ?? "—"}</td><td>${age}</td><td>${hist}</td></tr>`;
     }).join("");
   };
   document.getElementById("secFilter").onchange = drawListings;
   drawListings();
+  document.getElementById("listingRows").onclick = e => {
+    const tr = e.target.closest("tr[data-id]");
+    if (!tr) return;
+    const box = document.getElementById("lookup");
+    box.value = tr.dataset.id; showLookup();
+    document.getElementById("tomCard").scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // Accepts a share link, a bare listing ID, or "section row seat"; searches every game.
+  function findListings(q) {
+    q = q.trim();
+    if (!q) return [];
+    const all = DATA.games.flatMap(gm => (gm.history || []).map(h => ({ h, gm })));
+    const id = (q.match(/tickets\/([0-9a-z]+)/i) || [])[1] || (/^[0-9a-f]{6,}$/i.test(q) ? q : null);
+    if (id) return all.filter(x => x.h.id.toLowerCase() === id.toLowerCase());
+    const parts = q.replace(/sect(ion)?\.?|row|seat|[|,#]/gi, " ").trim().split(/\s+/);
+    if (parts.length < 2) return [];
+    const [sec, row, seat] = parts.map(p => p.toLowerCase());
+    const hits = all.filter(x => x.h.section.toLowerCase() === sec && x.h.row.toLowerCase() === row &&
+      (seat == null || x.h.seat.toLowerCase() === seat));
+    // Prefer the game being viewed when the same seat is listed for several games.
+    return hits.sort((a, b) => (b.gm === g) - (a.gm === g));
+  }
+
+  function timeline(h, gm) {
+    const items = [];
+    items.push(`<li><time>${fmtTime(Date.parse(h.start))}</time>${h.start_exact ? "Listed" : "Already listed when tracking began"} at ${$(h.prices[0][1])}</li>`);
+    for (let i = 1; i < h.prices.length; i++) {
+      const [ts, p] = h.prices[i], prev = h.prices[i - 1][1];
+      items.push(`<li><time>${fmtTime(Date.parse(ts))}</time><span class="${p < prev ? "cut" : "raise"}">Price ${p < prev ? "cut" : "raised"} ${$(prev)} → ${$(p)}</span></li>`);
+    }
+    const last = h.prices[h.prices.length - 1][1];
+    if (h.end) {
+      const what = { sold: `Likely sold at ${$(last)} (you'd get ≈ ${$(toPayout(last))})`,
+        withdrawn: "Taken down, no sales in that window", unclear: "Removed, possibly sold" }[h.outcome];
+      items.push(`<li><time>${fmtTime(Date.parse(h.end))}</time>${what}</li>`);
+    } else {
+      items.push(`<li><time>now</time>Still listed at ${$(last)}</li>`);
+    }
+    const om = onMarket(h);
+    return `<div><b>Sect. ${h.section} · Row ${h.row} · Seat ${h.seat}</b> · vs. ${gm.away_team} ${shortDate(gm)}
+      · <span style="color:var(--muted)">ID ${h.id}</span></div>
+      <div style="margin-top:4px">${h.end ? "Was on the market" : "On the market for"} <b>${om.atLeast ? "at least " : ""}${fmtDur(om.ms)}</b></div>
+      <ul class="timeline">${items.join("")}</ul>`;
+  }
+
+  function showLookup() {
+    const q = document.getElementById("lookup").value;
+    const out = document.getElementById("lookupResult");
+    if (!q.trim()) { out.innerHTML = ""; return; }
+    const hits = findListings(q);
+    out.innerHTML = hits.length
+      ? hits.slice(0, 5).map(x => timeline(x.h, x.gm)).join('<hr style="border:0;border-top:1px solid var(--grid);margin:12px 0">')
+      : `<span style="color:var(--muted)">No tracked listing matches. Tracking covers listings seen since ${
+          g.tracking_since ? fmtTime(Date.parse(g.tracking_since)) : "listing tracking began"}.</span>`;
+  }
+  document.getElementById("lookup").oninput = showLookup;
 
   // ---- calculator
   const input = document.getElementById("payout");

@@ -241,12 +241,43 @@ def likely_sales(events):
     return sorted(sales, key=lambda s: s["ts"])
 
 
+def listing_histories(events, sales):
+    """Per game, every listing's full timeline: start, price changes, end, outcome.
+
+    start_exact is False for listings already up when tracking began, so their
+    time on market is a lower bound. Outcome for removed listings: "sold" (likely
+    sale), "withdrawn" (no sales that interval), or "unclear" (sales happened but
+    other removals better explain them).
+    """
+    sold_ids = {x["listing_id"] for x in sales}
+    by_id = {}
+    for e in events:
+        h = by_id.get(e["listing_id"])
+        if h is None or (e["event"] in ("listed", "existing") and h["end"]):
+            # First sighting, or a relisting under the same ID after removal.
+            h = by_id[e["listing_id"]] = {
+                "id": e["listing_id"], "game_id": e["game_id"], "section": e["section"],
+                "row": e["row"], "seat": e["seat"], "start": e["ts"],
+                "start_exact": e["event"] == "listed", "end": None, "outcome": None, "prices": []}
+        if e["event"] == "removed":
+            h["end"] = e["ts"]
+            h["outcome"] = ("sold" if e["listing_id"] in sold_ids
+                            else "withdrawn" if e["sold_delta"] in ("0", 0) else "unclear")
+        else:
+            h["prices"].append([e["ts"], float(e["price"])])
+    out = {}
+    for h in by_id.values():
+        out.setdefault(h.pop("game_id"), []).append(h)
+    return out
+
+
 def report(quiet=False):
     games = _load_json(GAMES_PATH, {})
     latest = _load_json(LATEST_PATH, {})
     events = _read_csv(EVENTS_PATH)
     active = replay_events(events)
     sales = likely_sales(events)
+    histories = listing_histories(events, sales)
     now = datetime.now(timezone.utc)
     since_3h = (now - timedelta(hours=3)).isoformat(timespec="seconds")
 
@@ -285,6 +316,7 @@ def report(quiet=False):
                         "removed": sum(e["event"] == "removed" for e in recent),
                     },
                     "sales": game_sales[-100:],
+                    "history": histories.get(gid, []),
                     "sales_median_3h": statistics.median([s["price"] for s in game_sales if s["ts"] >= since_3h])
                                        if any(s["ts"] >= since_3h for s in game_sales) else None,
                     "tracking_since": min((e["ts"] for e in events if e["game_id"] == gid), default=None)})
