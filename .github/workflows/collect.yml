@@ -1,27 +1,47 @@
 name: Collect snapshot
 
+# Each run starts the next one ~5 minutes after it began, because GitHub's cron
+# is best-effort and often skips or delays frequent schedules. The cron below is
+# only a backup that restarts the chain if it ever breaks. Concurrency keeps at
+# most one run pending, so duplicate chains collapse into one.
+#
+# To stop collecting: Actions tab -> "Collect snapshot" -> "..." -> Disable workflow.
+
 on:
   schedule:
-    - cron: "*/5 * * * *"    # GitHub's minimum; runs often start a few minutes late
-  workflow_dispatch:          # "Run workflow" button for manual runs
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - maizetix_tracker.py
+      - dashboard_template.html
+      - .github/workflows/collect.yml
 
 permissions:
   contents: write   # commit new snapshots
   pages: write      # publish the dashboard
   id-token: write
+  actions: write    # start the next run
 
 concurrency:
   group: collect
   cancel-in-progress: false
 
+env:
+  INTERVAL_SECONDS: 300
+
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      - name: Note start time
+        run: echo "STARTED=$(date +%s)" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
 
       - name: Collect and build dashboard
@@ -47,3 +67,14 @@ jobs:
 
       - id: deploy
         uses: actions/deploy-pages@v4
+
+      # Runs even if an earlier step failed (e.g. MaizeTix briefly down),
+      # so one bad run doesn't stop collection.
+      - name: Schedule next run
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          wait=$(( STARTED + INTERVAL_SECONDS - $(date +%s) ))
+          if [ "$wait" -gt 0 ]; then sleep "$wait"; fi
+          gh workflow run collect.yml --ref main --repo "$GITHUB_REPOSITORY"
