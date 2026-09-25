@@ -55,7 +55,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/snapshots.csv data/games.json
+          git add data/snapshots.csv data/games.json data/listing_events.csv
           git diff --cached --quiet && exit 0
           git commit -m "Snapshot $(date -u +%Y-%m-%dT%H:%MZ)"
           for i in 1 2 3; do git pull --rebase && git push && exit 0; sleep 5; done

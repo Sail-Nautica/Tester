@@ -10,7 +10,7 @@
   color-scheme: light;
   --bg: #f4f3ef; --surface: #fcfcfb; --border: #e3e1da;
   --text: #0b0b0b; --text-2: #52514e; --muted: #7d7c77; --grid: #ebe9e3;
-  --s1: #2a78d6; --s2: #eb6834; --accent: #00274c; --maize: #ffcb05;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --accent: #00274c; --maize: #ffcb05;
   --good: #1a7f37; --warn: #9a6700;
 }
 @media (prefers-color-scheme: dark) {
@@ -18,7 +18,7 @@
     color-scheme: dark;
     --bg: #111110; --surface: #1a1a19; --border: #2e2d2b;
     --text: #ffffff; --text-2: #c3c2b7; --muted: #8f8e87; --grid: #2a2927;
-    --s1: #3987e5; --s2: #d95926; --accent: #ffcb05;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --accent: #ffcb05;
     --good: #4ac26b; --warn: #d4a72c;
   }
 }
@@ -26,7 +26,7 @@
   color-scheme: dark;
   --bg: #111110; --surface: #1a1a19; --border: #2e2d2b;
   --text: #ffffff; --text-2: #c3c2b7; --muted: #8f8e87; --grid: #2a2927;
-  --s1: #3987e5; --s2: #d95926; --accent: #ffcb05;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --accent: #ffcb05;
   --good: #4ac26b; --warn: #d4a72c;
 }
 * { box-sizing: border-box; }
@@ -61,6 +61,7 @@ h2 { font-size: 15px; margin: 0 0 2px; }
 .card .desc { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
 .chart { position: relative; height: 240px; }
 .legend { display: flex; gap: 14px; font-size: 13px; color: var(--text-2); margin-bottom: 6px; }
+.legend i.dot { width: 8px; height: 8px; border-radius: 50%; }
 .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
 .calc { margin-bottom: 12px; }
 .calc-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin: 10px 0 14px; }
@@ -75,7 +76,10 @@ h2 { font-size: 15px; margin: 0 0 2px; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
 th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--grid); }
 th:first-child, td:first-child { text-align: left; }
-th { color: var(--text-2); font-weight: 600; }
+th { color: var(--text-2); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+.cut { color: var(--good); } .raise { color: var(--warn); }
+.filter { font: inherit; font-size: 13px; margin-left: 8px; padding: 3px 6px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text); }
 details summary { cursor: pointer; color: var(--text-2); font-size: 14px; }
 .tablewrap { max-height: 320px; overflow: auto; margin-top: 10px; }
 .foot { color: var(--muted); font-size: 12.5px; margin-top: 16px; }
@@ -110,6 +114,10 @@ function fmtTime(ms) {
   return new Date(ms).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
 function gameLabel(g) { return `${g.away_team}`; }
+function fmtAge(ts) {
+  const m = (Date.now() - Date.parse(ts)) / 60e3;
+  return m < 60 ? Math.max(1, Math.round(m)) + "m" : m < 48 * 60 ? Math.round(m / 60) + "h" : Math.round(m / 1440) + "d";
+}
 function shortDate(g) {
   return new Date(g.date.replace(" ", "T")).toLocaleDateString([], { month: "numeric", day: "numeric" });
 }
@@ -150,6 +158,10 @@ function render(idx) {
     return;
   }
   const asks = g.ladder.map(l => l.price);
+  const act = g.activity || {};
+  g.sales = g.sales || [];
+  const since3h = Date.now() - 3 * 3600e3;
+  const recentSales = g.sales.filter(x => Date.parse(x.ts) >= since3h);
   const v = velocity(snaps);
 
   main.innerHTML = `
@@ -177,10 +189,25 @@ function render(idx) {
       <div class="result" id="result"></div>
     </div>
 
+    <div class="card calc">
+      <h2>Market activity · last 3 hours</h2>
+      <p class="desc">From tracking each listing. "Likely sold" means the listing disappeared while the sold count went up.</p>
+      <div class="result">
+        <div class="tile"><div class="label">New listings</div><div class="value">${act.listed ?? "—"}</div></div>
+        <div class="tile"><div class="label">Price cuts</div><div class="value">${act.price_cuts ?? "—"}</div>
+          <div class="note">${act.price_raises ? act.price_raises + " raised" : ""}</div></div>
+        <div class="tile"><div class="label">Taken down</div><div class="value">${act.removed ?? "—"}</div>
+          <div class="note">${recentSales.length} likely sold</div></div>
+        <div class="tile"><div class="label">Likely sale price</div><div class="value">${$(g.sales_median_3h)}</div>
+          <div class="note">${g.sales_median_3h ? "median, you'd get ≈ " + $(toPayout(g.sales_median_3h)) : "no sales detected yet"}</div></div>
+      </div>
+      ${g.tracking_since ? `<div class="sub">Tracking individual listings since ${fmtTime(Date.parse(g.tracking_since))}</div>` : ""}
+    </div>
+
     <div class="grid two">
       <div class="card"><h2>Price over time</h2>
-        <p class="desc">Cheapest listing vs. median completed sale, prices buyers see</p>
-        <div class="legend"><span><i style="background:var(--s1)"></i>Cheapest ask</span><span><i style="background:var(--s2)"></i>Median sale</span></div>
+        <p class="desc">Cheapest listing, MaizeTix's median sale, and individual likely sales. Prices buyers see.</p>
+        <div class="legend"><span><i style="background:var(--s1)"></i>Cheapest ask</span><span><i style="background:var(--s2)"></i>Median sale</span><span><i class="dot" style="background:var(--s3)"></i>Likely sale</span></div>
         <div class="chart"><canvas id="cPrice"></canvas></div></div>
       <div class="card"><h2>Current ask ladder</h2>
         <p class="desc">How many tickets are listed at each price. Yours is highlighted.</p>
@@ -198,7 +225,39 @@ function render(idx) {
         <div class="tablewrap"><table><thead><tr><th>Time</th><th>Cheapest</th><th>Median sale</th><th>Listed</th><th>Sold</th></tr></thead>
         <tbody>${snaps.slice().reverse().map(s => `<tr><td>${fmtTime(Date.parse(s.ts))}</td><td>${$(s.lowest)}</td><td>${$(s.median_sale)}</td><td>${s.listed}</td><td>${s.sold ?? "—"}</td></tr>`).join("")}</tbody></table></div>
       </details>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <details><summary>All current listings (${g.ladder.length})</summary>
+        <div style="margin-top:10px;font-size:13px;color:var(--text-2)">Section
+          <select class="filter" id="secFilter"><option value="">All</option>${
+            [...new Set(g.ladder.map(l => l.section))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+              .map(sec => `<option>${sec}</option>`).join("")}</select></div>
+        <div class="tablewrap"><table><thead><tr><th>Price</th><th>Section</th><th>Row</th><th>Seat</th><th>Listed for</th><th>Price history</th></tr></thead>
+        <tbody id="listingRows"></tbody></table></div>
+      </details>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <details><summary>Likely sales (${g.sales.length})</summary>
+        <div class="tablewrap"><table><thead><tr><th>Time</th><th>Price</th><th>You'd get</th><th>Section</th><th>Row</th></tr></thead>
+        <tbody>${g.sales.slice().reverse().map(s => `<tr><td>${fmtTime(Date.parse(s.ts))}</td><td>${$(s.price)}</td><td>${$(toPayout(s.price))}</td><td>${s.section}</td><td>${s.row}</td></tr>`).join("")
+          || `<tr><td colspan="5" style="text-align:center;color:var(--muted)">None detected yet</td></tr>`}</tbody></table></div>
+      </details>
     </div>`;
+
+  const drawListings = () => {
+    const sec = document.getElementById("secFilter").value;
+    document.getElementById("listingRows").innerHTML = g.ladder.filter(l => !sec || l.section === sec).map(l => {
+      const hist = l.first_price == null || Math.abs(l.first_price - l.price) < 0.005
+        ? (l.changes ? `${l.changes} changes` : "—")
+        : `<span class="${l.price < l.first_price ? "cut" : "raise"}">${$(l.first_price)} → ${$(l.price)}</span>`;
+      const age = l.first_seen ? (l.since_start ? "≥ " : "") + fmtAge(l.first_seen) : "—";
+      return `<tr><td>${$(l.price)}</td><td>${l.section ?? "—"}</td><td>${l.row ?? "—"}</td><td>${l.seat ?? "—"}</td><td>${age}</td><td>${hist}</td></tr>`;
+    }).join("");
+  };
+  document.getElementById("secFilter").onchange = drawListings;
+  drawListings();
 
   // ---- calculator
   const input = document.getElementById("payout");
@@ -253,9 +312,12 @@ function render(idx) {
     interaction: { mode: "index", intersect: false } };
 
   charts.push(new Chart(document.getElementById("cPrice"), { type: "line",
-    data: { datasets: [line("Cheapest ask", css("--s1"), pts("lowest")), line("Median sale", css("--s2"), pts("median_sale"))] },
-    options: { ...base, scales: { x: timeAxis, y: yAxis(true) },
-      plugins: { legend: { display: false }, tooltip: tooltip(v => "$" + v.toFixed(2)) } } }));
+    data: { datasets: [line("Cheapest ask", css("--s1"), pts("lowest")), line("Median sale", css("--s2"), pts("median_sale")),
+      { type: "scatter", label: "Likely sale", data: g.sales.map(x => ({ x: Date.parse(x.ts), y: x.price })),
+        backgroundColor: css("--s3"), borderColor: surface, borderWidth: 1.5, pointRadius: 4, pointHoverRadius: 6 }] },
+    // "x" mode: snapshot lines and likely-sale dots share timestamps, so hover shows all of them.
+    options: { ...base, interaction: { mode: "x", intersect: false }, scales: { x: timeAxis, y: yAxis(true) },
+      plugins: { legend: { display: false }, tooltip: { ...tooltip(v => "$" + v.toFixed(2)), mode: "x" } } } }));
 
   charts.push(new Chart(document.getElementById("cListed"), { type: "line",
     data: { datasets: [line("Listed", css("--s1"), pts("listed"))] },
