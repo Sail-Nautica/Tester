@@ -1,0 +1,35 @@
+name: Collect snapshot
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # GitHub may run scheduled jobs several minutes late
+  workflow_dispatch:          # "Run workflow" button for manual runs
+
+permissions:
+  contents: write
+
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect and build dashboard
+        run: |
+          python3 maizetix_tracker.py collect
+          python3 maizetix_tracker.py report
+
+      - name: Commit snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data docs
+          git diff --cached --quiet && exit 0
+          git commit -m "Snapshot $(date -u +%Y-%m-%dT%H:%MZ)"
+          for i in 1 2 3; do git pull --rebase && git push && exit 0; sleep 5; done
+          exit 1

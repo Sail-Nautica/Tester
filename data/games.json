@@ -1,0 +1,178 @@
+{
+ "730": {
+  "away_team": "Iowa",
+  "date": "2026-09-26 15:30:00",
+  "event_type": "football",
+  "home_team": "Michigan",
+  "stadium": "Michigan Stadium",
+  "time_set": true
+ },
+ "731": {
+  "away_team": "Penn State",
+  "date": "2026-10-17 00:00:00",
+  "event_type": "football",
+  "home_team": "Michigan",
+  "stadium": "Michigan Stadium",
+  "time_set": false
+ },
+ "732": {
+  "away_team": "Indiana",
+  "date": "2026-10-24 00:00:00",
+  "event_type": "football",
+  "home_team": "Michigan",
+  "stadium": "Michigan Stadium",
+  "time_set": false
+ },
+ "733": {
+  "away_team": "Michigan St",
+  "date": "2026-11-07 00:00:00",
+  "event_type": "football",
+  "home_team": "Michigan",
+  "stadium": "Michigan Stadium",
+  "time_set": false
+ },
+ "734": {
+  "away_team": "UCLA",
+  "date": "2026-11-21 00:00:00",
+  "event_type": "football",
+  "home_team": "Michigan",
+  "stadium": "Michigan Stadium",
+  "time_set": false
+ },
+ "760": {
+  "away_team": "Bowling Green",
+  "date": "2026-10-02 19:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": true
+ },
+ "761": {
+  "away_team": "Alaska Anchorage",
+  "date": "2026-10-09 19:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": true
+ },
+ "762": {
+  "away_team": "Alaska Anchorage",
+  "date": "2026-10-10 19:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": true
+ },
+ "763": {
+  "away_team": "Western Michigan",
+  "date": "2026-10-23 19:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": true
+ },
+ "764": {
+  "away_team": "Penn State",
+  "date": "2026-11-13 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "765": {
+  "away_team": "Penn State",
+  "date": "2026-11-14 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "766": {
+  "away_team": "Michigan State",
+  "date": "2026-11-20 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "767": {
+  "away_team": "Ferris State",
+  "date": "2026-11-27 19:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": true
+ },
+ "768": {
+  "away_team": "Ferris State",
+  "date": "2026-11-28 19:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": true
+ },
+ "769": {
+  "away_team": "Wisconsin",
+  "date": "2026-12-04 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "770": {
+  "away_team": "Wisconsin",
+  "date": "2026-12-05 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "771": {
+  "away_team": "Ohio State",
+  "date": "2027-01-22 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "772": {
+  "away_team": "Ohio State",
+  "date": "2027-01-23 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "773": {
+  "away_team": "Notre Dame",
+  "date": "2027-02-12 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "774": {
+  "away_team": "Notre Dame",
+  "date": "2027-02-13 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "775": {
+  "away_team": "Minnesota",
+  "date": "2027-02-26 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ },
+ "776": {
+  "away_team": "Minnesota",
+  "date": "2027-02-27 00:00:00",
+  "event_type": "hockey",
+  "home_team": "Michigan",
+  "stadium": "Yost Ice Arena",
+  "time_set": false
+ }
+}
