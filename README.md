@@ -1,11 +1,11 @@
 # MaizeTix Price Tracker
 
-Tracks student ticket prices on [maizetix.com](https://www.maizetix.com) every 15 minutes
+Tracks student ticket prices on [maizetix.com](https://www.maizetix.com) every 5 minutes
 to help decide when, and at what price, to sell.
 
-- **Dashboard:** GitHub Pages serves `docs/index.html`
+- **Dashboard:** published to GitHub Pages by the workflow each run
 - **Collector:** `.github/workflows/collect.yml` runs `maizetix_tracker.py` on a schedule and commits the results
-- **Data:** `data/snapshots.csv` (history), `data/latest.json` (current listings), `data/games.json`
+- **Data:** `data/snapshots.csv` (history) and `data/games.json`, committed each run
 
 Prices on MaizeTix include the buyer fee ($3 + 10%). Seller payout ≈ (price − 3) ÷ 1.1.
 
