@@ -156,11 +156,13 @@ def report(quiet=False):
             "ts": s["ts"], "listed": num(s["listed"], int), "sold": num(s["sold"], int),
             "lowest": num(s["lowest"]), "median_sale": num(s["median_sale"]),
             "frozen": num(s["frozen"], int)})
+    now = datetime.now().strftime("%Y-%m-%d")
     out = []
     for gid, g in sorted(games.items(), key=lambda kv: kv[1]["date"]):
-        if gid not in by_game:
+        # Show upcoming games even before anyone lists; drop past games that never had a market.
+        if gid not in by_game and g["date"][:10] < now:
             continue
-        out.append({**g, "id": int(gid), "snapshots": by_game[gid],
+        out.append({**g, "id": int(gid), "snapshots": by_game.get(gid, []),
                     "notice": latest.get(gid, {}).get("notice"),
                     "ladder": latest.get(gid, {}).get("ladder", [])})
     data = json.dumps({"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),

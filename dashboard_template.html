@@ -41,6 +41,13 @@ h1 span { color: var(--accent); }
 .tab { flex: none; border: 1px solid var(--border); background: var(--surface); color: var(--text-2);
   border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer; }
 .tab[aria-selected="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
+.tab small { opacity: .7; margin-left: 4px; }
+.sports { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 12px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border); max-width: 100%; overflow-x: auto; }
+.sport { flex: none; border: 0; background: none; color: var(--text-2); font: inherit; font-size: 14px; font-weight: 600;
+  padding: 6px 14px; border-radius: 7px; cursor: pointer; }
+.sport[aria-selected="true"] { background: var(--accent); color: var(--bg); }
+.sport .count { font-weight: 400; opacity: .75; margin-left: 5px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
 .grid { display: grid; gap: 12px; }
 .tiles { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom: 12px; }
@@ -81,7 +88,8 @@ details summary { cursor: pointer; color: var(--text-2); font-size: 14px; }
     <h1>MaizeTix <span>Price Tracker</span></h1>
     <div class="sub" id="updated"></div>
   </header>
-  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="sports" role="tablist" aria-label="Sport" id="sports"></div>
+  <div class="tabs" role="tablist" aria-label="Game" id="tabs"></div>
   <div id="main"></div>
   <p class="foot">Prices are what buyers see on MaizeTix, which already includes the buyer fee ($3 + 10%).
     Your payout is estimated as (price − $3) ÷ 1.1. Sellers pay no fee.
@@ -102,6 +110,12 @@ function fmtTime(ms) {
   return new Date(ms).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
 function gameLabel(g) { return `${g.away_team}`; }
+function shortDate(g) {
+  return new Date(g.date.replace(" ", "T")).toLocaleDateString([], { month: "numeric", day: "numeric" });
+}
+const gameTime = g => Date.parse(g.date.replace(" ", "T"));
+const isUpcoming = g => gameTime(g) + 6 * 3600e3 > Date.now();
+const sportName = t => t ? t[0].toUpperCase() + t.slice(1).replace(/_/g, " ") : "Other";
 function gameDate(g) {
   const d = new Date(g.date.replace(" ", "T"));
   return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }) +
@@ -123,11 +137,17 @@ function velocity(snaps, hours = 3) {
 
 function render(idx) {
   charts.splice(0).forEach(c => c.destroy());
-  document.querySelectorAll(".tab").forEach((t, i) => t.setAttribute("aria-selected", i === idx));
   const g = DATA.games[idx], snaps = g.snapshots, last = snaps[snaps.length - 1];
+  const main = document.getElementById("main");
+  if (!snaps.length) {
+    main.innerHTML = `
+      <div class="sub" style="margin:-6px 0 12px">Michigan vs. ${g.away_team} · ${gameDate(g)} · ${g.stadium}</div>
+      <div class="card empty">No tickets listed on MaizeTix yet.<br>
+        Tracking starts on its own once the first ticket is listed.</div>`;
+    return;
+  }
   const asks = g.ladder.map(l => l.price);
   const v = velocity(snaps);
-  const main = document.getElementById("main");
 
   main.innerHTML = `
     <div class="sub" style="margin:-6px 0 12px">Michigan vs. ${g.away_team} · ${gameDate(g)} · ${g.stadium}</div>
@@ -287,14 +307,45 @@ if (!DATA || !DATA.games.length) {
   const ageHrs = (Date.now() - Date.parse(DATA.generated)) / 3600e3;
   document.getElementById("updated").textContent = "Last updated " + fmtTime(Date.parse(DATA.generated)) +
     (ageHrs > 1.5 ? ` · ⚠ data is ${Math.round(ageHrs)} hr old, collector may be down` : "");
-  document.getElementById("tabs").innerHTML = DATA.games.map((g, i) =>
-    `<button class="tab" role="tab" data-i="${i}">vs. ${gameLabel(g)}</button>`).join("");
-  document.querySelectorAll(".tab").forEach(t => t.onclick = () => render(+t.dataset.i));
-  // Open on the next game that hasn't happened yet; finished games stay browsable.
-  const next = DATA.games.findIndex(g => Date.parse(g.date.replace(" ", "T")) + 6 * 3600e3 > Date.now());
-  render(next === -1 ? DATA.games.length - 1 : next);
-  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () =>
-    render(+document.querySelector('.tab[aria-selected="true"]').dataset.i));
+
+  // Sport switcher -> game pills. Sports come from the data, so new ones
+  // (e.g. basketball) get a tab as soon as MaizeTix lists them.
+  const sports = [...new Set(DATA.games.map(g => g.event_type))];
+  const gamesIn = sp => DATA.games.map((g, i) => ({ g, i })).filter(x => x.g.event_type === sp);
+  let current = null;
+
+  function selectGame(i) {
+    current = i;
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", +t.dataset.i === i));
+    history.replaceState(null, "", "#game-" + DATA.games[i].id);
+    render(i);
+  }
+
+  function selectSport(sp, gameIdx) {
+    document.querySelectorAll(".sport").forEach(t => t.setAttribute("aria-selected", t.dataset.sport === sp));
+    const list = gamesIn(sp);
+    document.getElementById("tabs").innerHTML = list.map(({ g, i }) =>
+      `<button class="tab" role="tab" data-i="${i}">vs. ${gameLabel(g)}<small>${shortDate(g)}</small></button>`).join("");
+    document.querySelectorAll(".tab").forEach(t => t.onclick = () => selectGame(+t.dataset.i));
+    // Default to the next upcoming game in this sport, preferring ones with listings.
+    const upcoming = list.filter(x => isUpcoming(x.g));
+    const pick = gameIdx ?? (upcoming.find(x => x.g.snapshots.length) || upcoming[0] || list[list.length - 1]).i;
+    selectGame(pick);
+  }
+
+  document.getElementById("sports").innerHTML = sports.map(sp => {
+    const active = gamesIn(sp).filter(x => isUpcoming(x.g) && x.g.snapshots.length).length;
+    return `<button class="sport" role="tab" data-sport="${sp}">${sportName(sp)}<span class="count">${active ? active + " active" : "no listings"}</span></button>`;
+  }).join("");
+  document.querySelectorAll(".sport").forEach(t => t.onclick = () => selectSport(t.dataset.sport));
+
+  // Restore from #game-<id>, else open the sport of the next game that has listings.
+  const fromHash = DATA.games.findIndex(g => "#game-" + g.id === location.hash);
+  const nextActive = DATA.games.findIndex(g => isUpcoming(g) && g.snapshots.length);
+  const start = fromHash !== -1 ? fromHash : nextActive !== -1 ? nextActive : 0;
+  selectSport(DATA.games[start].event_type, fromHash !== -1 ? fromHash : undefined);
+
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => render(current));
 }
 </script>
 </body>
