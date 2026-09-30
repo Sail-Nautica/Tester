@@ -174,5 +174,149 @@
   "home_team": "Michigan",
   "stadium": "Yost Ice Arena",
   "time_set": false
+ },
+ "793": {
+  "away_team": "Eastern Michigan (Ex)",
+  "date": "2026-10-11 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": true
+ },
+ "794": {
+  "away_team": "Oregon State (Ex)",
+  "date": "2026-10-16 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": true
+ },
+ "795": {
+  "away_team": "Oakland",
+  "date": "2026-11-02 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "796": {
+  "away_team": "Marquette",
+  "date": "2026-11-11 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "797": {
+  "away_team": "William & Mary",
+  "date": "2026-11-15 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "798": {
+  "away_team": "Miss Valley St",
+  "date": "2026-12-01 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "799": {
+  "away_team": "Northwestern",
+  "date": "2026-12-12 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "800": {
+  "away_team": "Detroit Mercy",
+  "date": "2026-12-21 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "801": {
+  "away_team": "Toledo",
+  "date": "2026-12-30 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "802": {
+  "away_team": "Washington",
+  "date": "2027-01-02 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "803": {
+  "away_team": "Purdue",
+  "date": "2027-01-08 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "804": {
+  "away_team": "Minnesota",
+  "date": "2027-01-12 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "805": {
+  "away_team": "Oregon",
+  "date": "2027-01-19 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "806": {
+  "away_team": "Ohio State",
+  "date": "2027-01-30 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "807": {
+  "away_team": "Illinois",
+  "date": "2027-02-09 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "808": {
+  "away_team": "Michigan St",
+  "date": "2027-02-13 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "809": {
+  "away_team": "Iowa",
+  "date": "2027-02-20 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
+ },
+ "810": {
+  "away_team": "Maryland",
+  "date": "2027-03-04 00:00:00",
+  "event_type": "basketball",
+  "home_team": "Michigan",
+  "stadium": "Crisler Center",
+  "time_set": false
  }
 }
