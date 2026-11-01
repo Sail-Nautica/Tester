@@ -24,12 +24,12 @@
   "time_set": false
  },
  "733": {
-  "away_team": "Michigan St",
+  "away_team": "Michigan State",
   "date": "2026-11-07 00:00:00",
   "event_type": "football",
   "home_team": "Michigan",
   "stadium": "Michigan Stadium",
-  "time_set": false
+  "time_set": true
  },
  "734": {
   "away_team": "UCLA",
