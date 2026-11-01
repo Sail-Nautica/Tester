@@ -6355,3 +6355,4 @@ ts,game_id,listing_id,event,price,prev_price,section,row,seat,sold_delta
 2026-11-01T21:55:10+00:00,733,e6a89b3ac,listed,150.0,,27,23,10,
 2026-11-01T21:55:10+00:00,795,0ba89d44b,listed,14.5,,STUDENT,3,77,
 2026-11-01T21:55:10+00:00,775,e6882dae3,price_change,55.0,60.0,,,,
+2026-11-01T22:00:19+00:00,733,26a89e5de,listed,115.0,,31,59,2,
