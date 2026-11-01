@@ -6013,3 +6013,7 @@ ts,game_id,listing_id,event,price,prev_price,section,row,seat,sold_delta
 2026-11-01T01:14:04+00:00,733,f5a6f1bc3,removed,115.0,,29,66,33,2
 2026-11-01T01:14:04+00:00,733,aea75defb,removed,115.0,,29,40,15,2
 2026-11-01T01:14:04+00:00,733,40a7cf3fd,removed,115.0,,29,94,22,2
+2026-11-01T01:19:16+00:00,733,0fa5ff00d,price_change,115.0,129.0,26,85,4,
+2026-11-01T01:19:16+00:00,733,83a75bd3c,removed,118.0,,29,81,10,2
+2026-11-01T01:19:16+00:00,795,9ca7a79d8,price_change,12.0,30.0,STUDENT,17,26,
+2026-11-01T01:19:16+00:00,796,dfa7a8a8c,price_change,25.0,35.0,STUDENT,15,8,
