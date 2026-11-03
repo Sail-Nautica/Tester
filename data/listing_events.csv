@@ -8384,3 +8384,4 @@ ts,game_id,listing_id,event,price,prev_price,section,row,seat,sold_delta
 2026-11-03T02:36:55+00:00,733,d9aaba0db,removed,105.0,,29,46,14,1
 2026-11-03T02:36:55+00:00,733,dcaabc212,removed,103.0,,29,54,2,1
 2026-11-03T02:42:04+00:00,733,27aab6c4f,removed,102.99,,25,95,7,2
+2026-11-03T02:47:16+00:00,765,f6aa63812,removed,47.0,,,,,0
