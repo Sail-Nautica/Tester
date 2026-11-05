@@ -9848,3 +9848,4 @@ ts,game_id,listing_id,event,price,prev_price,section,row,seat,sold_delta
 2026-11-05T05:46:14+00:00,733,f7abc9ad8,price_change,106.0,113.0,33,30,13,
 2026-11-05T05:46:14+00:00,733,75acf76a4,removed,101.99,,31,84,22,1
 2026-11-05T05:56:34+00:00,733,5facf88fe,listed,110.0,,31,79,35,
+2026-11-05T06:01:44+00:00,733,a0acfab52,listed,99.0,,33,64,4,
