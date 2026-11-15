@@ -17044,3 +17044,4 @@ ts,game_id,listing_id,event,price,prev_price,section,row,seat,sold_delta
 2026-11-15T21:40:20+00:00,734,11bab5421,listed,14.99,,28,54,7,
 2026-11-15T21:45:36+00:00,734,c6bab66b7,listed,14.5,,31,84,30,
 2026-11-15T21:45:36+00:00,734,4bbab7722,listed,18.0,,29,53,26,
+2026-11-15T21:50:47+00:00,734,06baaf22e,removed,14.9,,26,92,9,1
