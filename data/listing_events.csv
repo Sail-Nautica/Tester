@@ -16742,3 +16742,10 @@ ts,game_id,listing_id,event,price,prev_price,section,row,seat,sold_delta
 2026-11-15T15:26:04+00:00,797,b2ba2fbcc,removed,3.02,,Student,12,77,3
 2026-11-15T15:26:04+00:00,797,47ba44c9e,removed,3.02,,STUDENT,14,31,3
 2026-11-15T15:26:04+00:00,797,54ba45ccc,removed,3.02,,STUDENT,11,80,3
+2026-11-15T15:31:14+00:00,734,36ba46d0e,price_change,13.9,10.0,26,12,27,
+2026-11-15T15:31:14+00:00,734,e6b819786,price_change,15.0,26.0,31,1,1,
+2026-11-15T15:31:14+00:00,797,5bba4bf37,listed,3.03,,STUDENT,15,34,
+2026-11-15T15:31:14+00:00,797,acb537b10,price_change,3.41,14.9,STUDENT,13,73,
+2026-11-15T15:31:14+00:00,797,13ba48daf,price_change,7.98,8.98,STUDENT,29,8,
+2026-11-15T15:31:14+00:00,797,4aba2c7aa,removed,3.02,,STUDENT,35,97,4
+2026-11-15T15:31:14+00:00,797,12ba41a17,removed,3.02,,Student,32,1,4
