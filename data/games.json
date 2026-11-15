@@ -37,7 +37,7 @@
   "event_type": "football",
   "home_team": "Michigan",
   "stadium": "Michigan Stadium",
-  "time_set": false
+  "time_set": true
  },
  "760": {
   "away_team": "Bowling Green",
