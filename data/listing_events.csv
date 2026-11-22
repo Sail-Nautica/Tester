@@ -21439,3 +21439,4 @@ ts,game_id,listing_id,event,price,prev_price,section,row,seat,sold_delta
 2026-11-22T15:21:49+00:00,769,c1c0fd834,listed,70.0,,,,,
 2026-11-22T17:15:52+00:00,769,63c0fe27b,listed,70.0,,,,,
 2026-11-22T17:52:07+00:00,772,4ca62ea6f,price_change,100.0,120.0,,,,
+2026-11-22T19:25:31+00:00,769,45c0ff064,listed,65.0,,,,,
