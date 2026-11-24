@@ -21464,3 +21464,4 @@ ts,game_id,listing_id,event,price,prev_price,section,row,seat,sold_delta
 2026-11-24T10:14:31+00:00,769,8cc105dc5,listed,70.0,,,,,
 2026-11-24T12:40:23+00:00,770,74c107519,listed,85.0,,,,,
 2026-11-24T19:43:45+00:00,769,d3c1087ef,listed,69.69,,,,,
+2026-11-24T22:14:39+00:00,769,99beddf83,price_change,74.0,80.0,,,,
