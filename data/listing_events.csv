@@ -21602,3 +21602,4 @@ ts,game_id,listing_id,event,price,prev_price,section,row,seat,sold_delta
 2026-11-27T15:36:09+00:00,768,48c144e91,price_change,44.0,43.0,,,,
 2026-11-27T15:51:44+00:00,769,09c16b176,removed,69.0,,,,,1
 2026-11-27T15:56:55+00:00,767,0fc16c7c2,listed,50.0,,,,,
+2026-11-27T16:02:14+00:00,798,dfc16d868,listed,3.02,,Student,29,56,
